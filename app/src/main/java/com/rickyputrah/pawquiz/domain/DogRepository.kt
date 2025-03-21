@@ -2,6 +2,7 @@ package com.rickyputrah.pawquiz.domain
 
 import androidx.annotation.Keep
 import com.rickyputrah.pawquiz.data.DogApi
+import com.rickyputrah.pawquiz.data.DogBreedStorage
 import com.rickyputrah.pawquiz.di.IoDispatcher
 import com.squareup.moshi.JsonClass
 import kotlinx.coroutines.CoroutineDispatcher
@@ -14,13 +15,17 @@ interface DogRepository {
 
 class DogRepositoryImpl @Inject constructor(
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+    private val dogBreedStorage: DogBreedStorage,
     private val dogApi: DogApi,
 ) : DogRepository {
 
     override suspend fun getDogBreedList(): Result<List<DogBreed>> {
         return withContext(ioDispatcher) {
             runCatching {
-                fetchBreedList()
+                // Option: Improve this by fetching the breed list periodically (every few days or weeks)
+                // if we expect the data to change frequently. Adding a timestamp to track the last fetch
+                // and decide when to refresh the list.
+                dogBreedStorage.getBreedList().getOrNull() ?: fetchBreedList()
             }
         }
     }
@@ -37,6 +42,7 @@ class DogRepositoryImpl @Inject constructor(
                 }
                 acc
             }
+        dogBreedStorage.storeBreedList(dogBreeds)
         return dogBreeds
     }
 }
