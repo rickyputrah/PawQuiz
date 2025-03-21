@@ -11,6 +11,7 @@ import javax.inject.Inject
 
 interface DogRepository {
     suspend fun getDogBreedList(): Result<List<DogBreed>>
+    suspend fun getDogImage(code: String): Result<String>
 }
 
 class DogRepositoryImpl @Inject constructor(
@@ -26,6 +27,14 @@ class DogRepositoryImpl @Inject constructor(
                 // if we expect the data to change frequently. Adding a timestamp to track the last fetch
                 // and decide when to refresh the list.
                 dogBreedStorage.getBreedList().getOrNull() ?: fetchBreedList()
+            }
+        }
+    }
+
+    override suspend fun getDogImage(code: String): Result<String> {
+        return withContext(ioDispatcher) {
+            runCatching {
+                dogApi.getDogImage(breed = code).imageUrl
             }
         }
     }
