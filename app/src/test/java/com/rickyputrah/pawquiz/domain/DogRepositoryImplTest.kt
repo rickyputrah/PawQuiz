@@ -3,6 +3,7 @@ package com.rickyputrah.pawquiz.domain
 import com.rickyputrah.pawquiz.data.DogApi
 import com.rickyputrah.pawquiz.data.DogBreedList
 import com.rickyputrah.pawquiz.data.DogBreedStorage
+import com.rickyputrah.pawquiz.data.DogImage
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -75,6 +76,29 @@ class DogRepositoryImplTest {
 
             assertTrue(result.isFailure)
         }
+
+    @Test
+    fun `Given get dog image success When get dog image Then return expected image url `() =
+        runTest {
+            val code = "australian/kelpie"
+            val expectedImageUrl = "imageUrl"
+            coEvery { dogApi.getDogImage(code) } returns DogImage(expectedImageUrl)
+
+            val result = repository.getDogImage(code = code)
+
+            assertTrue(result.isSuccess)
+            assertEquals(expectedImageUrl, result.getOrNull())
+        }
+
+    @Test
+    fun `Given get dog image failed When get dog image Then return failure`() = runTest {
+        val code = "australian/kelpie"
+        coEvery { dogApi.getDogImage(code) } throws Throwable("failed to get dog image")
+
+        val result = repository.getDogImage(code = code)
+
+        assertTrue(result.isFailure)
+    }
 
     companion object {
         private val DOG_API_RESULT = DogBreedList(
