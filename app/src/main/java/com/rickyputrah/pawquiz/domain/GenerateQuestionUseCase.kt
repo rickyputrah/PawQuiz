@@ -1,5 +1,6 @@
 package com.rickyputrah.pawquiz.domain
 
+import com.rickyputrah.pawquiz.data.ImagePreloader
 import com.rickyputrah.pawquiz.di.IoDispatcher
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
@@ -12,6 +13,7 @@ interface GenerateQuestionUseCase {
 class GenerateQuestionUseCaseImpl @Inject constructor(
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     private val dogRepository: DogRepository,
+    private val imagePreloader: ImagePreloader,
 ) : GenerateQuestionUseCase {
     override suspend fun invoke(numOfOption: Int): Result<Question> {
         return withContext(ioDispatcher) {
@@ -24,6 +26,9 @@ class GenerateQuestionUseCaseImpl @Inject constructor(
 
             val imageUrl = dogRepository.getDogImage(code = correctOption.code).getOrNull()
                 ?: return@withContext Result.failure(QuestionException.FailedToFetchImage())
+
+            // Fire and forget function to preload image in the background
+            imagePreloader.preloadImage(imageUrl)
 
             Result.success(
                 Question(

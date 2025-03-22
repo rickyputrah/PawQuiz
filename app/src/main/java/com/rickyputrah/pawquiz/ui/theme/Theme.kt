@@ -5,6 +5,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import coil3.ImageLoader
+import com.rickyputrah.pawquiz.util.LocalImageLoader
+import com.rickyputrah.pawquiz.util.getDefaultImageLoader
 
 private val lightScheme = lightColorScheme(
     primary = primaryLight,
@@ -84,12 +88,15 @@ private val darkScheme = darkColorScheme(
 
 @Composable
 fun PawQuizTheme(
+    imageLoader: ImageLoader = getDefaultImageLoader(),
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable() () -> Unit,
 ) {
-    MaterialTheme(
-        colorScheme = if (darkTheme) darkScheme else lightScheme,
-        typography = AppTypography,
-        content = content
-    )
+    CompositionLocalProvider(LocalImageLoader provides imageLoader) {
+        MaterialTheme(
+            colorScheme = if (darkTheme) darkScheme else lightScheme,
+            typography = AppTypography,
+            content = content
+        )
+    }
 }

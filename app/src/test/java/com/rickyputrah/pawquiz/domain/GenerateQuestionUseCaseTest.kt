@@ -1,8 +1,10 @@
 package com.rickyputrah.pawquiz.domain
 
+import com.rickyputrah.pawquiz.data.ImagePreloader
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -14,11 +16,13 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class GenerateQuestionUseCaseTest {
     private val dogRepository = mockk<DogRepository>()
+    private val imagePreloader = mockk<ImagePreloader>(relaxed = true)
 
     private val usecase by lazy(LazyThreadSafetyMode.NONE) {
         GenerateQuestionUseCaseImpl(
             ioDispatcher = UnconfinedTestDispatcher(),
             dogRepository = dogRepository,
+            imagePreloader = imagePreloader
         )
     }
 
@@ -39,6 +43,7 @@ class GenerateQuestionUseCaseTest {
             assertEquals(numOfOption, question.options.size)
             coVerify { dogRepository.getDogImage(question.correctOption.code) }
             assertEquals(expectedImageUrl, question.imageUrl)
+            verify { imagePreloader.preloadImage(expectedImageUrl) }
         }
 
     @Test
@@ -50,7 +55,10 @@ class GenerateQuestionUseCaseTest {
             val result = usecase.invoke(numOfOption = numOfOption)
 
             assertTrue(result.exceptionOrNull() is QuestionException.FailedToFetchDogBreedList)
-            coVerify(atLeast = 0) { dogRepository.getDogImage(any()) }
+            coVerify(atLeast = 0) {
+                dogRepository.getDogImage(any())
+                imagePreloader.preloadImage(any())
+            }
         }
 
     @Test
@@ -63,7 +71,10 @@ class GenerateQuestionUseCaseTest {
             val result = usecase.invoke(numOfOption = numOfOption)
 
             assertTrue(result.exceptionOrNull() is QuestionException.FailedToFetchImage)
-            coVerify(atLeast = 0) { dogRepository.getDogImage(any()) }
+            coVerify(atLeast = 0) {
+                dogRepository.getDogImage(any())
+                imagePreloader.preloadImage(any())
+            }
         }
 
 
