@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">PawQuiz</string>
-    <string name="home_button_start">Start</string>
+    <string name="home_button_start">Bark On!</string>
     <string name="question_prompt_1">Bark if you know me! What breed am I?</string>
     <string name="question_prompt_2">Paw-lease tell me, what am I called?</string>
     <string name="question_prompt_3">Can you spot which furry friend this is?</string>
@@ -16,4 +16,6 @@
     <string name="question_prompt_13">Unleash your knowledge! What breed is shown?</string>
     <string name="failed_to_load_text">Paws for a moment!\n Our questions got tangled in their leash. Give it another try!</string>
     <string name="failed_to_load_try_again">Sniff Out New Questions!"</string>
+    <string name="welcome_title">" Who's That Doggo?"</string>
+    <string name="welcome_subtitle">A Breed Guessing Adventure</string>
 </resources>
