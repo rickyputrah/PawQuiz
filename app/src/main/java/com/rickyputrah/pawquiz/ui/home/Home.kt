@@ -15,6 +15,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -25,6 +26,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptionsBuilder
@@ -45,7 +48,10 @@ fun NavGraphBuilder.home(
     navController: NavController,
 ) {
     composable<HomeRoute> {
+        val viewModel = hiltViewModel<HomeViewModel>()
+        val score by viewModel.score.collectAsStateWithLifecycle()
         HomeScreen(
+            score = score,
             onStartClicked = {
                 navController.navigateToQuestion()
             }
@@ -59,6 +65,7 @@ fun NavController.navigateToHome(builder: (NavOptionsBuilder.() -> Unit)? = null
 
 @Composable
 internal fun HomeScreen(
+    score: Int,
     onStartClicked: () -> Unit = {}
 ) {
     Scaffold { contentPadding ->
@@ -125,6 +132,19 @@ internal fun HomeScreen(
                     textAlign = TextAlign.Center,
                 )
             }
+
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 48.dp),
+                text = if (score == 0) stringResource(R.string.welcome_empty_high_score) else stringResource(
+                    R.string.welcome_high_score,
+                    score
+                ),
+                style = MaterialTheme.typography.headlineSmall,
+                color = Color.White,
+                textAlign = TextAlign.Center
+            )
         }
     }
 }
@@ -134,6 +154,9 @@ internal fun HomeScreen(
 @Composable
 private fun PreviewHomeScreen() {
     PawQuizTheme {
-        HomeScreen()
+        HomeScreen(
+            score = 0,
+            onStartClicked = {}
+        )
     }
 }

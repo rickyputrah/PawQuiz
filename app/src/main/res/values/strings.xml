@@ -18,4 +18,6 @@
     <string name="failed_to_load_try_again">Sniff Out New Questions!"</string>
     <string name="welcome_title">" Who's That Doggo?"</string>
     <string name="welcome_subtitle">A Breed Guessing Adventure</string>
+    <string name="welcome_high_score">Your Pawsome Record: %1$s</string>
+    <string name="welcome_empty_high_score">Unleash Your Quiz Skills</string>
 </resources>
