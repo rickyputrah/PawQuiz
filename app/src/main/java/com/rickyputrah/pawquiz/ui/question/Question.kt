@@ -12,7 +12,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -24,6 +28,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -76,6 +82,7 @@ fun NavGraphBuilder.question() {
             QuestionScreen(
                 promptNumber = uiState.promptNumber,
                 question = question,
+                score = uiState.currentScore,
                 onCardSelected = viewModel::onQuestionAnswered
             )
 
@@ -111,16 +118,46 @@ fun NavController.navigateToQuestion(builder: (NavOptionsBuilder.() -> Unit)? = 
 internal fun QuestionScreen(
     promptNumber: Int,
     question: Question,
+    score: Int,
     onCardSelected: (Question, DogBreed) -> Unit,
 ) {
     Scaffold { contentPadding ->
         Column(
             modifier = Modifier
+                .fillMaxSize()
+                .systemBarsPadding()
+                .verticalScroll(rememberScrollState())
                 .padding(contentPadding)
                 .padding(horizontal = 20.dp)
         ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .background(
+                        brush = Brush.linearGradient(
+                            colorStops = arrayOf(
+                                0f to Color(0xFFFFEA96),
+                                1f to Color(0xFFA5FFCD)
+                            )
+                        ),
+                        shape = CardDefaults.shape
+                    ),
+            ) {
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp, horizontal = 20.dp)
+                        .wrapContentHeight(),
+                    text = stringResource(R.string.question_current_score, score),
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = Color.Black,
+                    textAlign = TextAlign.Center
+                )
+            }
+
             Text(
-                modifier = Modifier.padding(top = 40.dp),
+                modifier = Modifier.padding(top = 24.dp),
                 text = getQuestionPrompt(promptNumber),
                 style = MaterialTheme.typography.headlineSmall,
             )
@@ -128,38 +165,42 @@ internal fun QuestionScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(300.dp)
-                    .padding(top = 30.dp),
+                    .padding(top = 16.dp),
                 shape = RoundedCornerShape(8.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                 elevation = CardDefaults.cardElevation(2.dp)
             ) {
-                val request = ImageRequest.Builder(LocalContext.current)
-                    .data(question.imageUrl)
-                    .size(512)
-                    .crossfade(true)
-                    .build()
-                AsyncImage(
-                    model = request,
-                    contentDescription = "",
-                    contentScale = ContentScale.Crop,
-                    placeholder = painterResource(R.drawable.loader_icon),
-                    error = painterResource(R.drawable.ic_broken_image),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .testTag(DOG_IMAGE_TEST_TAG)
-                        .heightIn(min = 150.dp, max = 300.dp)
-                        .clip(RoundedCornerShape(8.dp)),
-                    imageLoader = LocalImageLoader.current,
-                )
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    val request = ImageRequest.Builder(LocalContext.current)
+                        .data(question.imageUrl)
+                        .size(512)
+                        .crossfade(true)
+                        .build()
+                    AsyncImage(
+                        model = request,
+                        contentDescription = "",
+                        contentScale = ContentScale.Fit,
+                        placeholder = painterResource(R.drawable.loader_icon),
+                        error = painterResource(R.drawable.ic_broken_image),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag(DOG_IMAGE_TEST_TAG)
+                            .heightIn(min = 150.dp, max = 300.dp)
+                            .clip(RoundedCornerShape(8.dp)),
+                        imageLoader = LocalImageLoader.current,
+                    )
+                }
             }
-
-            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(20.dp))
             question.options.forEach { option ->
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(min = 36.dp)
-                        .padding(vertical = 8.dp),
+                        .padding(vertical = 4.dp),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                     border = CardDefaults.outlinedCardBorder(),
                     onClick = { onCardSelected(question, option) }
@@ -255,6 +296,7 @@ private fun getQuestionPrompt(promptNumber: Int): String {
 @Composable
 private fun PreviewQuestionScreen() {
     PawQuizTheme {
+
         QuestionScreen(
             question = Question(
                 options = listOf(
@@ -265,7 +307,8 @@ private fun PreviewQuestionScreen() {
                 ), correctOption = DogBreed(name = "Akita", code = "akita"), imageUrl = ""
             ),
             onCardSelected = { question: Question, breed: DogBreed -> },
-            promptNumber = Random.nextInt(1, 10)
+            promptNumber = Random.nextInt(1, 10),
+            score = 0
         )
     }
 }

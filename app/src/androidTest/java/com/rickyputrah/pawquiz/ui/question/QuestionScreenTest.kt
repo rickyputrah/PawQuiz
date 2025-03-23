@@ -43,13 +43,14 @@ class QuestionScreenTest {
             .build()
     }
 
-    private fun setComposeContent(promptNumber: Int) {
+    private fun setComposeContent(promptNumber: Int, score: Int) {
         composeTestRule.setContent {
             PawQuizTheme(imageLoader = imageLoader) {
                 QuestionScreen(
                     promptNumber = promptNumber,
                     question = QUESTION,
-                    onCardSelected = onCardSelected
+                    onCardSelected = onCardSelected,
+                    score = score,
                 )
             }
         }
@@ -57,18 +58,23 @@ class QuestionScreenTest {
 
     @Test
     fun verifyQuestionScreenInteraction() {
-        setComposeContent(promptNumber = 1)
+        setComposeContent(promptNumber = 1, score = 10)
+
         composeTestRule.onNodeWithTag(DOG_IMAGE_TEST_TAG)
             .assertIsDisplayed()
+
         composeTestRule
             .onNodeWithText(context.getString(R.string.question_prompt_1))
+            .assertIsDisplayed()
+
+        composeTestRule
+            .onNodeWithText(context.getString(R.string.question_current_score, 10))
             .assertIsDisplayed()
 
         composeTestRule
             .onNodeWithText(AIREDALE.name)
             .assertIsDisplayed()
             .performClick()
-
         verify { onCardSelected.invoke(QUESTION, AIREDALE) }
 
         composeTestRule

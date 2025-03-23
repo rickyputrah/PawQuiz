@@ -2,10 +2,12 @@ package com.rickyputrah.pawquiz.ui.question
 
 import com.rickyputrah.pawquiz.domain.DogBreed
 import com.rickyputrah.pawquiz.domain.GenerateQuestionUseCase
+import com.rickyputrah.pawquiz.domain.HighScoreRepository
 import com.rickyputrah.pawquiz.domain.Question
 import com.rickyputrah.pawquiz.domain.QuestionException
 import io.mockk.coEvery
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -20,13 +22,15 @@ import org.junit.Test
 class QuestionViewModelTest {
 
     private val generateQuestionUseCase: GenerateQuestionUseCase = mockk(relaxed = true)
+    private val highScoreRepository: HighScoreRepository = mockk(relaxed = true)
     private val testDispatcher = StandardTestDispatcher()
 
     private val viewModel by lazy(LazyThreadSafetyMode.NONE) {
         QuestionViewModel(
+            highScoreRepository = highScoreRepository,
             generateQuestionUseCase = generateQuestionUseCase,
             ioDispatcher = testDispatcher,
-            mainDispatcher = testDispatcher
+            mainDispatcher = testDispatcher,
         )
     }
 
@@ -83,10 +87,14 @@ class QuestionViewModelTest {
             viewModel
             testDispatcher.scheduler.advanceUntilIdle()
 
+            assertEquals(0, viewModel.uiState.value.currentScore)
+
             // When
             viewModel.onQuestionAnswered(firstQuestion, KELPIE_AUSTRALIAN)
 
             assertTrue(viewModel.uiState.value.isSuccess)
+            assertEquals(1, viewModel.uiState.value.currentScore)
+            verify(exactly = 0) { highScoreRepository.saveHighScore(1) }
 
             // Then advance until next question generated
             testDispatcher.scheduler.advanceTimeBy(2_001)
@@ -113,10 +121,11 @@ class QuestionViewModelTest {
 
             viewModel.onQuestionAnswered(expectedQuestion, AIREDALE)
 
-
             val currentState = viewModel.uiState.value
             assertTrue(currentState.isWrongAnswer)
             assertFalse(currentState.isSuccess)
+            assertEquals(0, currentState.currentScore)
+            verify { highScoreRepository.saveHighScore(0) }
         }
 
     @Test

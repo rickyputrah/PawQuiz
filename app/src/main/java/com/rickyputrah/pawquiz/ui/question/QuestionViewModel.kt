@@ -6,6 +6,7 @@ import com.rickyputrah.pawquiz.di.IoDispatcher
 import com.rickyputrah.pawquiz.di.MainDispatcher
 import com.rickyputrah.pawquiz.domain.DogBreed
 import com.rickyputrah.pawquiz.domain.GenerateQuestionUseCase
+import com.rickyputrah.pawquiz.domain.HighScoreRepository
 import com.rickyputrah.pawquiz.domain.Question
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -22,6 +23,7 @@ import kotlin.random.Random
 @HiltViewModel
 class QuestionViewModel @Inject constructor(
     private val generateQuestionUseCase: GenerateQuestionUseCase,
+    private val highScoreRepository: HighScoreRepository,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     @MainDispatcher private val mainDispatcher: CoroutineDispatcher
 ) : ViewModel() {
@@ -60,11 +62,14 @@ class QuestionViewModel @Inject constructor(
 
     fun onQuestionAnswered(question: Question, option: DogBreed) {
         if (question.correctOption == option) {
+            var newScore = _uiState.value.currentScore + 1
             _uiState.update {
-                it.copy(isSuccess = true)
+                it.copy(isSuccess = true, currentScore = newScore)
             }
             getNextQuestion()
         } else {
+            highScoreRepository.saveHighScore(_uiState.value.currentScore)
+            // TODO determine result screen
             _uiState.update {
                 it.copy(isWrongAnswer = true)
             }
@@ -91,6 +96,7 @@ class QuestionViewModel @Inject constructor(
     }
 
     data class QuestionUiState(
+        val currentScore: Int = 0,
         val promptNumber: Int = 0,
         val isLoading: Boolean = true,
         val question: Question? = null,
