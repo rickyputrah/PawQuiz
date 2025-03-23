@@ -24,6 +24,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,7 +55,9 @@ import com.rickyputrah.pawquiz.R
 import com.rickyputrah.pawquiz.domain.DogBreed
 import com.rickyputrah.pawquiz.domain.Question
 import com.rickyputrah.pawquiz.navigation.Route
+import com.rickyputrah.pawquiz.ui.home.HomeRoute
 import com.rickyputrah.pawquiz.ui.loading.LoadingScreen
+import com.rickyputrah.pawquiz.ui.result.navigateToResult
 import com.rickyputrah.pawquiz.ui.theme.PawQuizTheme
 import com.rickyputrah.pawquiz.util.LocalImageLoader
 import com.rickyputrah.pawquiz.util.ReferencePreviewDevicesLightDarkMode
@@ -67,7 +70,7 @@ const val FAILED_TO_LOAD_IMAGE_TEST_TAG = "FAILED_TO_LOAD_IMAGE_TEST_TAG"
 @Serializable
 private data object QuestionRoute : Route
 
-fun NavGraphBuilder.question() {
+fun NavGraphBuilder.question(navController: NavController) {
     composable<QuestionRoute> {
         BackHandler {
             // Disable back click when in Game
@@ -100,7 +103,16 @@ fun NavGraphBuilder.question() {
                     )
                 }
             } else if (uiState.isWrongAnswer) {
-                // TODO navigate to result/score page
+                LaunchedEffect(Unit) {
+                    navController.navigateToResult(
+                        finalScore = uiState.currentScore,
+                        isNewHighScore = uiState.isNewHighScore
+                    ) {
+                        popUpTo<HomeRoute> {
+                            inclusive = false
+                        }
+                    }
+                }
             }
         } else {
             FailedToLoadScreen(

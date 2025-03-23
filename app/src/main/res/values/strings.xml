@@ -18,7 +18,10 @@
     <string name="failed_to_load_try_again">Sniff Out New Questions!"</string>
     <string name="welcome_title">" Who's That Doggo?"</string>
     <string name="welcome_subtitle">A Breed Guessing Adventure</string>
-    <string name="welcome_high_score">Your Pawsome Record: %1$s</string>
+    <string name="welcome_high_score">Your Pawsome Record: %1$d</string>
     <string name="welcome_empty_high_score">Unleash Your Quiz Skills</string>
-    <string name="question_current_score">Dog Tags Collected: %1$s</string>
+    <string name="question_current_score">Dog Tags Collected: %1$d</string>
+    <string name="result_score">Not quite ribbon-worthy yet.</string>
+    <string name="result_new_high_score">HOW-L Amazing! You\'ve Set a New High Score!</string>
+    <string name="result_button_play_again">Bark for More</string>
 </resources>

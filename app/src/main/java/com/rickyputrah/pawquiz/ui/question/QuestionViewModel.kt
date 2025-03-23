@@ -68,10 +68,11 @@ class QuestionViewModel @Inject constructor(
             }
             getNextQuestion()
         } else {
-            highScoreRepository.saveHighScore(_uiState.value.currentScore)
-            // TODO determine result screen
+            val currentScore = _uiState.value.currentScore
+            val isNewHighScore = highScoreRepository.getHighScore().value < currentScore
+            highScoreRepository.saveHighScore(currentScore)
             _uiState.update {
-                it.copy(isWrongAnswer = true)
+                it.copy(isWrongAnswer = true, isNewHighScore = isNewHighScore)
             }
         }
     }
@@ -102,6 +103,7 @@ class QuestionViewModel @Inject constructor(
         val question: Question? = null,
         val isSuccess: Boolean = false,
         val isWrongAnswer: Boolean = false,
+        val isNewHighScore: Boolean = false,
     )
 
     companion object {
